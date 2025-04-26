@@ -84,12 +84,12 @@ fun MyMoneyNotesApp(
                         icon = { Icon(imageVector = androidx.compose.material.icons.Icons.Default.Info, contentDescription = "Stats") },
                         label = { Text("Stats") }
                     )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { navController.navigate("settings") },
-                        icon = { Icon(imageVector = androidx.compose.material.icons.Icons.Default.Settings, contentDescription = "Settings") },
-                        label = { Text("Settings") }
-                    )
+//                    NavigationBarItem(
+//                        selected = false,
+//                        onClick = { navController.navigate("settings") },
+//                        icon = { Icon(imageVector = androidx.compose.material.icons.Icons.Default.Settings, contentDescription = "Settings") },
+//                        label = { Text("Settings") }
+//                    )
                 }
             }
         ) { innerPadding ->
