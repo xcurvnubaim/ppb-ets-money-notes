@@ -1,5 +1,6 @@
 package com.example.mymoneynotes.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -21,11 +22,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.mymoneynotes.data.Transaction
 import com.example.mymoneynotes.data.TransactionCategory
 import com.example.mymoneynotes.data.TransactionType
@@ -35,7 +37,7 @@ import kotlin.math.min
 fun StatsScreen(transactions: List<Transaction>) {
     var selectedType by remember { mutableStateOf(TransactionType.EXPENSE) }
     val scrollState = rememberScrollState()
-    
+
     // Animation for type selection
     val animatedSelectedType = remember { mutableStateOf(selectedType) }
     LaunchedEffect(selectedType) {
@@ -69,7 +71,7 @@ fun StatsScreen(transactions: List<Transaction>) {
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            // Sleek toggle between Income and Expense
+            // Fixed toggle between Income and Expense (no white line)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,8 +85,7 @@ fun StatsScreen(transactions: List<Transaction>) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(4.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                        .height(48.dp) // Fixed height for consistent appearance
                 ) {
                     TransactionTypeSegment(
                         text = "Expenses",
@@ -225,7 +226,7 @@ fun CategoryBreakdownItem(
     progress: Float
 ) {
     val categoryColor = getCategoryColor(category)
-    
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -259,7 +260,7 @@ fun CategoryBreakdownItem(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Custom progress indicator
         Box(
             modifier = Modifier
@@ -300,19 +301,19 @@ fun TransactionTypeSegment(
         targetValue = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
         animationSpec = tween(durationMillis = 300)
     )
-    
+
     val textColor by animateColorAsState(
         targetValue = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
         animationSpec = tween(durationMillis = 300)
     )
-    
+
+    // Removed padding to fix white line issue
     Box(
         modifier = modifier
-            .padding(4.dp)
-            .clip(RoundedCornerShape(24.dp))
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(28.dp))
             .background(backgroundColor)
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -324,15 +325,16 @@ fun TransactionTypeSegment(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun PieChart(
     data: Map<TransactionCategory, Double>,
     totalAmount: Double
 ) {
     if (data.isEmpty()) return
-    
+
     val colorScheme = MaterialTheme.colorScheme
-    
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -345,7 +347,7 @@ fun PieChart(
             val canvasHeight = size.height
             val radius = min(canvasWidth, canvasHeight) / 2f
             val center = Offset(canvasWidth / 2f, canvasHeight / 2f)
-            
+
             // Animation for pie chart
             var startAngle = 0f
 
@@ -389,7 +391,7 @@ fun PieChart(
                 radius = radius * 0.6f + 2f,
                 center = center.copy(x = center.x + 1f, y = center.y + 1f)
             )
-            
+
             drawCircle(
                 color = colorScheme.surface,
                 radius = radius * 0.6f,
@@ -397,19 +399,36 @@ fun PieChart(
             )
         }
 
-        // Center content
+        // Center content with adaptive text size
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.width(IntrinsicSize.Max)
         ) {
             Text(
                 text = "Total",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            // Dynamic text size based on amount length
+            val totalText = "Rp ${String.format("%,.0f", totalAmount)}"
+            val textSize = when {
+                totalText.length > 15 -> 18.sp
+                totalText.length > 12 -> 20.sp
+                totalText.length > 9 -> 24.sp
+                else -> 28.sp
+            }
+
             Text(
-                text = "Rp ${String.format("%,.0f", totalAmount)}",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.ExtraBold
+                text = totalText,
+                fontSize = textSize,
+                fontWeight = FontWeight.ExtraBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
             )
         }
     }

@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.sp
 import com.example.mymoneynotes.data.Transaction
 import com.example.mymoneynotes.data.TransactionCategory
 import com.example.mymoneynotes.data.TransactionType
-import com.example.mymoneynotes.ui.screens.getCategoryColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -175,6 +174,7 @@ fun AddTransactionScreen(onTransactionAdded: (Transaction) -> Unit) {
                 .padding(vertical = 8.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             leadingIcon = { Icon(Icons.Outlined.MonetizationOn, contentDescription = null) },
+            placeholder = { Text("Enter amount") },
             isError = amountError != null,
             supportingText = {
                 AnimatedVisibility(
@@ -209,10 +209,9 @@ fun AddTransactionScreen(onTransactionAdded: (Transaction) -> Unit) {
             onValueChange = { description = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .heightIn(min = 100.dp),
+                .padding(vertical = 8.dp),
             leadingIcon = { Icon(Icons.Outlined.Description, contentDescription = null) },
-            placeholder = { Text("Add notes about this transaction...") },
+            placeholder = { Text("Add notes") },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline
@@ -275,12 +274,13 @@ fun TransactionTypeCard(
         modifier = modifier
             .height(100.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (selected) color else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            contentColor = if (selected) contentColor else MaterialTheme.colorScheme.onSurfaceVariant
+            containerColor = if (selected) color else MaterialTheme.colorScheme.surface,
+            contentColor = if (selected) contentColor else MaterialTheme.colorScheme.onSurface
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (selected) 6.dp else 1.dp
+            defaultElevation = if (selected) 4.dp else 0.dp
         ),
+        border = if (!selected) null else null,
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
