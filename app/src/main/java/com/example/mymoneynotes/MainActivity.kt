@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mymoneynotes.ui.screens.*
 import com.example.mymoneynotes.ui.theme.MyMoneyNotesAppTheme
@@ -50,9 +51,22 @@ fun MyMoneyNotesApp(
     ) {
         val navController = rememberNavController()
 
+        // 🔥 ADD THIS: Tracking the current page
+        val currentBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = currentBackStackEntry?.destination?.route
+
+        // You can use `currentRoute` anywhere now!
+        LaunchedEffect(currentRoute) {
+            currentRoute?.let {
+                // Log it or send it to analytics
+                println("Now viewing page: $it")
+            }
+        }
+
         // Collect state from ViewModel
         val transactions by viewModel.allTransactions.collectAsState()
         val financialSummary by viewModel.financialSummary.collectAsState()
+
 
         Scaffold(
             topBar = {
@@ -67,29 +81,23 @@ fun MyMoneyNotesApp(
             bottomBar = {
                 NavigationBar {
                     NavigationBarItem(
-                        selected = true,
+                        selected = currentRoute == "home",
                         onClick = { navController.navigate("home") },
                         icon = { Icon(imageVector = androidx.compose.material.icons.Icons.Default.Home, contentDescription = "Home") },
                         label = { Text("Home") }
                     )
                     NavigationBarItem(
-                        selected = false,
+                        selected = currentRoute == "add_transaction",
                         onClick = { navController.navigate("add_transaction") },
                         icon = { Icon(imageVector = androidx.compose.material.icons.Icons.Default.Add, contentDescription = "Add") },
                         label = { Text("Add") }
                     )
                     NavigationBarItem(
-                        selected = false,
+                        selected = currentRoute == "stats",
                         onClick = { navController.navigate("stats") },
                         icon = { Icon(imageVector = androidx.compose.material.icons.Icons.Default.Info, contentDescription = "Stats") },
                         label = { Text("Stats") }
                     )
-//                    NavigationBarItem(
-//                        selected = false,
-//                        onClick = { navController.navigate("settings") },
-//                        icon = { Icon(imageVector = androidx.compose.material.icons.Icons.Default.Settings, contentDescription = "Settings") },
-//                        label = { Text("Settings") }
-//                    )
                 }
             }
         ) { innerPadding ->
@@ -118,19 +126,7 @@ fun MyMoneyNotesApp(
                 composable("stats") {
                     StatsScreen(transactions = transactions)
                 }
-//                composable("settings") {
-//                    SettingsScreen(
-//                        onNavigateBack = {
-//                            navController.navigateUp()
-//                        }
-//                    )
-//                }
             }
         }
     }
 }
-
-//@Composable
-//fun SettingsScreen(onNavigateBack: () -> Boolean) {
-//    TODO("Not yet implemented")
-//}
